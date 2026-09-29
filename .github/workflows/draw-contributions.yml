@@ -1,0 +1,33 @@
+# Installed by GitToPaint. Edit your drawing at https://unoursmarin.github.io/GitHubPageAsPaint/
+# Runs daily around 12:20 in Europe/Paris, and on demand from the Actions tab.
+name: Draw contributions
+
+on:
+  schedule:
+    - cron: '20 10 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: draw-contributions
+  cancel-in-progress: false
+
+jobs:
+  draw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .github-art-config.json
+            .github/git-to-paint/draw.mjs
+          sparse-checkout-cone-mode: false
+      - name: Paint the planned days
+        run: node .github/git-to-paint/draw.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_TO_PAINT_TOKEN: ${{ secrets.GIT_TO_PAINT_TOKEN }}
